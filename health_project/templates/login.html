@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #222;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #16a34a;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #16a34a;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #15803d;
+        }
+
+        .note {
+            font-size: 12px;
+            color: gray;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>AI Based Health Monitoring System Login</h2>
+
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <div class="note" style="font-size:12px; color:gray; margin-top:10px;">
+        Demo: Username: admin | Password: 1234
+    </div>
+</div>
+
+<script>
+function login() {
+    let u = document.getElementById("user").value;
+    let p = document.getElementById("pass").value;
+
+    if (u === "admin" && p === "1234") {
+        window.location.href = "/dashboard";
+    } else {
+        alert("Invalid credentials");
+    }
+}
+</script>
+
+</body>
+</html>

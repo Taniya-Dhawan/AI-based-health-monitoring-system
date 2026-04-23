@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Health Monitoring System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f2937;
+        }
+
+        .live {
+            text-align: center;
+            color: #16a34a;
+            margin-bottom: 15px;
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .big {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .alert {
+            margin: 15px 0;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .normal {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .critical {
+            background: #ffebee;
+            color: #b71c1c;
+            animation: blink 0.8s infinite;
+        }
+
+        .chart-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>AI Based Health Monitoring System</h1>
+
+    <div class="live">● LIVE MONITORING <span class="blink">●</span></div>
+
+    <div class="grid">
+        <div class="card">
+            Heart Rate<br>
+            <div class="big" id="hr">--</div>bpm
+        </div>
+
+        <div class="card">
+            Temperature<br>
+            <div class="big" id="temp">--</div>°C
+        </div>
+
+        <div class="card">
+            Oxygen<br>
+            <div class="big" id="oxy">--</div>%
+        </div>
+
+        <div class="card">
+            Patient ID<br>
+            <div class="big" id="pid">--</div>
+        </div>
+    </div>
+
+    <div id="alertBox" class="alert normal">NORMAL CONDITION</div>
+
+    <div class="chart-box">
+        <canvas id="chart"></canvas>
+    </div>
+
+</div>
+
+<audio id="alarmSound">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">
+</audio>
+
+<script>
+let labels = [];
+let heart = [];
+let temp = [];
+let oxy = [];
+
+let alarmPlayed = false;
+
+const chart = new Chart(document.getElementById('chart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            { label: 'Heart Rate', data: heart, borderColor: 'red' },
+            { label: 'Temperature', data: temp, borderColor: 'orange' },
+            { label: 'Oxygen', data: oxy, borderColor: 'green' }
+        ]
+    },
+    options: {
+        responsive: true,
+        animation: false,
+        scales: {
+            x: { ticks: { maxTicksLimit: 8 } },
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+function fetchData() {
+    fetch('/data')
+    .then(r => r.json())
+    .then(d => {
+
+        document.getElementById("hr").innerText = d.heart_rate;
+        document.getElementById("temp").innerText = d.temperature;
+        document.getElementById("oxy").innerText = d.oxygen;
+        document.getElementById("pid").innerText = d.patient_id;
+
+        let box = document.getElementById("alertBox");
+
+        if (d.alert === "CRITICAL") {
+            box.className = "alert critical";
+            box.innerText = "CRITICAL CONDITION";
+
+            if (!alarmPlayed) {
+                document.getElementById("alarmSound").play();
+                alarmPlayed = true;
+            }
+        } else {
+            box.className = "alert normal";
+            box.innerText = "NORMAL CONDITION";
+            alarmPlayed = false;
+        }
+
+        labels.push(d.timestamp);
+        heart.push(d.heart_rate);
+        temp.push(d.temperature);
+        oxy.push(d.oxygen);
+
+        if (labels.length > 20) {
+            labels.shift();
+            heart.shift();
+            temp.shift();
+            oxy.shift();
+        }
+
+        chart.update();
+    });
+}
+
+fetchData();
+setInterval(fetchData, 2000);
+</script>
+
+</body>
+</html>
